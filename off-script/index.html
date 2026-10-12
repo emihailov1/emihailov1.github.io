@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Off-Script · Не по сценарию</title>
+<meta name="description" content="Off-Script — interactive stories of romance and mystery for Android. Your choices decide how the night ends.">
+<link rel="canonical" href="https://emihailov1.github.io/off-script/">
+<meta name="theme-color" content="#0b1215">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Off-Script">
+<meta property="og:description" content="Interactive stories of romance and mystery. Your choices decide how the night ends.">
+<meta property="og:url" content="https://emihailov1.github.io/off-script/">
+<meta property="og:image" content="https://emihailov1.github.io/off-script/img/banner-en.jpg">
+<link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Forum&display=swap" rel="stylesheet">
+<script>
+  // Язык до первой отрисовки: #en/#ru в адресе → выбор посетителя → язык браузера.
+  (function () {
+    var lang = (location.hash || "").slice(1);
+    if (lang !== "en" && lang !== "ru") {
+      try { lang = localStorage.getItem("offscript-lang"); } catch (e) { lang = null; }
+    }
+    if (lang !== "en" && lang !== "ru") {
+      lang = /^(ru|uk|be|kk)\b/i.test(navigator.language || "") ? "ru" : "en";
+    }
+    document.documentElement.setAttribute("data-lang", lang);
+    document.documentElement.lang = lang;
+  })();
+</script>
+<style>
+  :root {
+    --night: #0b1215;
+    --box: #0e181c;
+    --gold: #c9a45c;
+    --gold-bright: #f0d38f;
+    --gold-soft: rgba(201, 164, 92, 0.45);
+    --gold-wash: rgba(201, 164, 92, 0.12);
+    --ink: #f1e5cc;
+    --ink-dim: #d9ccb2;
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--night); }
+  body {
+    margin: 0;
+    padding: 0 16px;
+    background: var(--night);
+    color: var(--ink);
+    font: 500 19px/1.6 "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Один язык на экране, как в игре. */
+  html[data-lang="en"] [lang="ru"],
+  html[data-lang="ru"] [lang="en"] { display: none !important; }
+  [lang] { animation: appear 0.14s var(--ease); }
+  @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
+
+  main {
+    max-width: 880px;
+    margin: 32px auto;
+    background: var(--box);
+    border: 1px solid var(--gold);
+    border-radius: 6px;
+    overflow: hidden;
+    animation: rise 0.15s var(--ease);
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--gold-soft);
+  }
+  .kicker, .label, .button, .langs button, .arrows button, footer {
+    font-family: Forum, Georgia, serif;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .kicker { margin: 0; font-size: 13px; color: var(--gold); }
+
+  .langs { display: flex; gap: 6px; }
+  .langs button, .arrows button {
+    font-size: 12px;
+    color: var(--gold);
+    background: transparent;
+    border: 1px solid var(--gold-soft);
+    border-radius: 3px;
+    padding: 6px 10px 5px;
+    cursor: pointer;
+    transition: background-color 0.12s var(--ease), border-color 0.12s var(--ease),
+                color 0.12s var(--ease), transform 0.12s var(--ease);
+  }
+  .langs button:hover, .arrows button:hover { border-color: var(--gold); background: var(--gold-wash); }
+  .langs button:active, .arrows button:active { transform: scale(0.95); }
+  .langs button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--night); cursor: default; }
+  .langs button[aria-pressed="true"]:active { transform: none; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 3px; }
+
+  .banner { display: block; width: 100%; height: auto; aspect-ratio: 1024 / 500; background: var(--night); }
+
+  .intro { padding: 30px 32px 8px; text-align: center; }
+  h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .lead { margin: 0 auto 26px; max-width: 30em; font-style: italic; font-size: 24px; line-height: 1.4; color: var(--ink); }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 28px 13px;
+    font-size: 15px;
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--gold-wash);
+    border: 1px solid var(--gold);
+    border-radius: 3px;
+    transition: background-color 0.12s var(--ease), box-shadow 0.12s var(--ease),
+                transform 0.12s var(--ease), color 0.12s var(--ease);
+  }
+  .button svg { width: 14px; height: 14px; fill: var(--gold); transition: fill 0.12s var(--ease); }
+  .button:hover {
+    background: var(--gold);
+    color: var(--night);
+    box-shadow: 0 0 0 4px rgba(201, 164, 92, 0.16), 0 8px 28px rgba(201, 164, 92, 0.22);
+    transform: translateY(-1px);
+  }
+  .button:hover svg { fill: var(--night); }
+  .button:active { transform: translateY(0) scale(0.98); box-shadow: 0 0 0 2px rgba(201, 164, 92, 0.2); }
+  .note { margin: 10px 0 0; font-size: 16px; font-style: italic; color: var(--ink-dim); }
+
+  .divider { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 30px 0 4px; }
+  .divider::before, .divider::after { content: ""; width: 64px; border-top: 1px solid var(--gold-soft); }
+  .divider span { width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); }
+
+  .gallery { padding: 18px 0 8px; }
+  .gallery-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 32px 12px;
+  }
+  .label { margin: 0; font-size: 13px; color: var(--gold); }
+  .arrows { display: flex; gap: 6px; }
+  .arrows button { font-size: 14px; letter-spacing: 0; padding: 4px 12px; }
+  .arrows button:disabled { opacity: 0.3; cursor: default; background: transparent; border-color: var(--gold-soft); transform: none; }
+
+  .strip {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 32px;
+    padding: 6px 32px 18px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-soft) transparent;
+  }
+  .strip figure { margin: 0; flex: 0 0 auto; width: 236px; scroll-snap-align: start; }
+  .strip img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 9 / 16;
+    background: var(--night);
+    border: 1px solid var(--gold-soft);
+    border-radius: 4px;
+    transition: border-color 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  }
+  .strip figure:hover img { border-color: var(--gold); transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45); }
+
+  .about { padding: 8px 32px 28px; max-width: 40em; margin: 0 auto; }
+  .about p { margin: 0 0 12px; }
+
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 22px;
+    padding: 18px 20px 20px;
+    border-top: 1px solid var(--gold-soft);
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  footer a {
+    color: var(--gold);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.12s var(--ease), color 0.12s var(--ease);
+  }
+  footer a:hover { color: var(--gold-bright); border-bottom-color: var(--gold-bright); }
+
+  @media (max-width: 640px) {
+    body { font-size: 18px; }
+    main { margin: 16px auto; }
+    .bar { padding: 12px 16px; }
+    .intro { padding: 24px 16px 4px; }
+    .lead { font-size: 21px; }
+    .gallery-head { padding: 0 16px 10px; }
+    .strip { padding: 6px 16px 16px; scroll-padding: 0 16px; gap: 10px; }
+    .strip figure { width: 62vw; max-width: 236px; }
+    .about { padding: 6px 16px 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="bar">
+    <p class="kicker">Dry Ice</p>
+    <div class="langs" role="group" aria-label="Language · Язык">
+      <button type="button" data-set-lang="en" aria-label="English">EN</button>
+      <button type="button" data-set-lang="ru" aria-label="Русский">RU</button>
+    </div>
+  </div>
+
+  <img class="banner" lang="en" src="img/banner-en.jpg" width="1024" height="500" alt="Off-Script — interactive stories of romance and mystery">
+  <img class="banner" lang="ru" src="img/banner-ru.jpg" width="1024" height="500" alt="Off-Script: Не по сценарию — истории о любви и тайнах" loading="lazy">
+
+  <section class="intro">
+    <h1 lang="en">Off-Script</h1>
+    <h1 lang="ru">Off-Script: Не по сценарию</h1>
+    <p class="lead" lang="en">Your choices decide how the night ends.</p>
+    <p class="lead" lang="ru">Выбираете вы. От вас зависит, чем кончится ночь.</p>
+    <a class="button" lang="en" href="https://play.google.com/store/apps/details?id=com.dryice.offscript&amp;hl=en">
+      <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 0.8 13 7 2 13.2Z"/></svg>Get it on Google Play</a>
+    <a class="button" lang="ru" href="https://play.google.com/store/apps/details?id=com.dryice.offscript&amp;hl=ru">
+      <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 0.8 13 7 2 13.2Z"/></svg>Скачать в Google Play</a>
+    <p class="note" lang="en">Free · Android</p>
+    <p class="note" lang="ru">Бесплатно · Android</p>
+    <div class="divider" aria-hidden="true"><span></span></div>
+  </section>
+
+  <section class="gallery">
+    <div class="gallery-head">
+      <p class="label" lang="en">From the game</p>
+      <p class="label" lang="ru">Из игры</p>
+      <div class="arrows">
+        <button type="button" data-step="-1" aria-label="Previous · Назад">&larr;</button>
+        <button type="button" data-step="1" aria-label="Next · Дальше">&rarr;</button>
+      </div>
+    </div>
+    <div class="strip" lang="en">
+      <figure><img src="img/en-1.jpg" width="540" height="960" loading="lazy" alt="Season 1, Thirteen Candles: every choice changes the night"></figure>
+      <figure><img src="img/en-2.jpg" width="540" height="960" loading="lazy" alt="The demon in the cellar: he cannot lie, only stay silent"></figure>
+      <figure><img src="img/en-3.jpg" width="540" height="960" loading="lazy" alt="Seven endings in Season 1: your choices change the ending"></figure>
+      <figure><img src="img/en-4.jpg" width="540" height="960" loading="lazy" alt="Who will you trust? A demon, a ghost, a deputy"></figure>
+      <figure><img src="img/en-5.jpg" width="540" height="960" loading="lazy" alt="Letters between episodes: they write to you while you wait"></figure>
+      <figure><img src="img/en-6.jpg" width="540" height="960" loading="lazy" alt="Season 2, Midnight, Again: a New Year's Eve that keeps starting over"></figure>
+    </div>
+    <div class="strip" lang="ru">
+      <figure><img src="img/ru-1.jpg" width="540" height="960" loading="lazy" alt="Сезон 1, «Тринадцать свечей»: каждый выбор меняет ночь"></figure>
+      <figure><img src="img/ru-2.jpg" width="540" height="960" loading="lazy" alt="Демон в подвале: он не умеет лгать, только молчать"></figure>
+      <figure><img src="img/ru-3.jpg" width="540" height="960" loading="lazy" alt="Семь финалов в первом сезоне: ваш выбор меняет финал"></figure>
+      <figure><img src="img/ru-4.jpg" width="540" height="960" loading="lazy" alt="Не только варианты: отвечайте своими словами"></figure>
+      <figure><img src="img/ru-5.jpg" width="540" height="960" loading="lazy" alt="Кому вы поверите? Демон, призрак, помощник шерифа"></figure>
+      <figure><img src="img/ru-6.jpg" width="540" height="960" loading="lazy" alt="Письма между сериями: пока вы ждёте, они пишут вам"></figure>
+      <figure><img src="img/ru-7.jpg" width="540" height="960" loading="lazy" alt="Сезон 2, «Снова полночь»: новогодняя ночь, которая начинается снова и снова"></figure>
+    </div>
+  </section>
+
+  <section class="about">
+    <div lang="en">
+      <p>Off-Script is a series of interactive stories: romance, mystery and a little magic. You decide what the heroine says, whom she trusts and whom she lets close — and every choice changes how her story ends.</p>
+      <p>Between episodes the characters write to you, and your answers count. New episodes open with keys that refill over time.</p>
+    </div>
+    <div lang="ru">
+      <p>Off-Script — интерактивные истории о любви, тайнах и немного о магии. Вы решаете, что скажет героиня, кому она поверит и кого подпустит ближе, — и каждый выбор меняет финал.</p>
+      <p>Между сериями герои пишут вам — и ваши ответы тоже считаются. Новые серии открываются ключами, а ключи восстанавливаются со временем.</p>
+    </div>
+  </section>
+
+  <footer>
+    <a href="https://emihailov1.github.io/off-script-privacy/"><span lang="en">Privacy Policy</span><span lang="ru">Политика конфиденциальности</span></a>
+    <a href="mailto:emihailovyt@gmail.com"><span lang="en">Contact</span><span lang="ru">Связаться</span></a>
+    <span>© 2026 Dry Ice</span>
+  </footer>
+</main>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var langButtons = document.querySelectorAll("[data-set-lang]");
+    var arrows = document.querySelectorAll("[data-step]");
+
+    function visibleStrip() {
+      return document.querySelector('.strip[lang="' + root.getAttribute("data-lang") + '"]');
+    }
+
+    function updateArrows() {
+      var strip = visibleStrip();
+      var max = strip.scrollWidth - strip.clientWidth - 2;
+      arrows[0].disabled = strip.scrollLeft <= 2;
+      arrows[1].disabled = strip.scrollLeft >= max;
+    }
+
+    function setLang(lang, remember) {
+      root.setAttribute("data-lang", lang);
+      root.lang = lang;
+      langButtons.forEach(function (b) {
+        b.setAttribute("aria-pressed", b.getAttribute("data-set-lang") === lang ? "true" : "false");
+      });
+      if (remember) {
+        try { localStorage.setItem("offscript-lang", lang); } catch (e) {}
+        history.replaceState(null, "", "#" + lang);
+      }
+      updateArrows();
+    }
+
+    langButtons.forEach(function (b) {
+      b.addEventListener("click", function () { setLang(b.getAttribute("data-set-lang"), true); });
+    });
+
+    arrows.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var strip = visibleStrip();
+        var card = strip.querySelector("figure");
+        var stepPx = card.getBoundingClientRect().width + parseFloat(getComputedStyle(strip).columnGap || 14);
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        strip.scrollBy({ left: Number(b.getAttribute("data-step")) * stepPx * 2, behavior: reduce ? "auto" : "smooth" });
+      });
+    });
+
+    document.querySelectorAll(".strip").forEach(function (s) {
+      s.addEventListener("scroll", updateArrows, { passive: true });
+    });
+    window.addEventListener("resize", updateArrows);
+    window.addEventListener("hashchange", function () {
+      var lang = location.hash.slice(1);
+      if (lang === "en" || lang === "ru") setLang(lang, true);
+    });
+
+    setLang(root.getAttribute("data-lang"), false);
+  })();
+</script>
+</body>
+</html>
